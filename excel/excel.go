@@ -6,10 +6,10 @@ import (
 	"regexp"
 )
 
-func ReadExcel() map[string]string {
+func ReadExcel(excelPath string) map[string]string {
 	// 获取当前目录
 	// 打开 Excel 文件
-	file, err := xlsx.OpenFile("D:\\Users\\Jactitator\\Documents\\goworkspace\\src\\github.com\\iunsuccessful\\WordToText\\文件名对应表.xlsx")
+	file, err := xlsx.OpenFile(excelPath)
 	if err != nil {
 		fmt.Println("Error opening file:", err)
 		return nil

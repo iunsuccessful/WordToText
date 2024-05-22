@@ -2,12 +2,13 @@ package path
 
 import (
 	"fmt"
+	"log"
 	"os"
 	"path/filepath"
 	"strings"
 )
 
-func listFiles(dirPath string) ([]string, error) {
+func ListFiles(dirPath string) ([]string, error) {
 	var filenames []string
 
 	err := filepath.Walk(dirPath, func(path string, info os.FileInfo, err error) error {
@@ -25,22 +26,8 @@ func listFiles(dirPath string) ([]string, error) {
 	return filenames, nil
 }
 
-func ReadFiles() {
-	dirPath := "D:\\Users\\Jactitator\\Downloads\\20240521 叶丹丹文档处理\\20240521 叶丹丹文档处理\\txt" // 替换为实际目录路径
-	filenames, err := listFiles(dirPath)
-	if err != nil {
-		fmt.Println("Error listing files:", err)
-		return
-	}
-	for _, filename := range filenames {
-		fmt.Println(filename)
-	}
-}
-
-func RenameFile(fileNameMap map[string]string) {
-	dirPath := "D:\\Users\\Jactitator\\Downloads\\20240521 叶丹丹文档处理\\20240521 叶丹丹文档处理\\txt"
-	newDirPath := "D:\\Users\\Jactitator\\Downloads\\20240521 叶丹丹文档处理\\20240521 叶丹丹文档处理\\txtnew"
-	filenames, err := listFiles(dirPath)
+func RenameFile(oldTxtPath, newTxtPath string, fileNameMap map[string]string) {
+	filenames, err := ListFiles(oldTxtPath)
 	if err != nil {
 		fmt.Println("Error listing files:", err)
 		return
@@ -58,8 +45,8 @@ func RenameFile(fileNameMap map[string]string) {
 		// 遍历 map, 找当前文件名包含的 key
 		for key, newName := range fileNameMap {
 			if strings.Contains(filename, key) {
-				newPath := filepath.Join(newDirPath, newName+".txt")
-				err := os.Rename(filepath.Join(dirPath, filename), newPath)
+				newPath := filepath.Join(newTxtPath, newName+".txt")
+				err := os.Rename(filepath.Join(oldTxtPath, filename), newPath)
 				if err != nil {
 					fmt.Println("Error renaming file:", err)
 				}
@@ -80,4 +67,21 @@ func RenameFile(fileNameMap map[string]string) {
 	for key, value := range unprocessedMap {
 		fmt.Printf("Key: %s, Value: %s\n", key, value)
 	}
+}
+
+func EnsureDirectoryExists(filePath string) {
+	dirPath, _ := filepath.Split(filePath)
+	err := mkdirAll(dirPath, 0755)
+	if err != nil {
+		log.Fatal("Error creating directory:", err)
+	}
+}
+
+// mkdirAll is a helper function to create directories recursively.
+func mkdirAll(path string, mode os.FileMode) error {
+	err := os.MkdirAll(path, mode)
+	if err != nil && !os.IsExist(err) {
+		return fmt.Errorf("failed to create directory %q: %v", path, err)
+	}
+	return nil
 }
